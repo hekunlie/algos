@@ -1,0 +1,184 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\begin{document}
+\title{Numerically Solving PDE's: Crank-Nicholson Algorithm}
+\maketitle
+
+\section{PDE}
+    \begin{equation}
+        \frac{\partial f(x,t)}{\partial t} = 
+        a(x,t) \frac{\partial^2 f(x,t)}{\partial x^2}
+        + b(x,t) \frac{\partial f(x,t)}{\partial x}
+        + c(x,t) f(x,t)
+        + d(x,t).
+    \end{equation}
+
+\section{Tridiagonal matrix}
+\subsection{equal space step}
+    \begin{equation}
+        x_i = x_{\min} + ih \quad  {\rm and} \quad t_n = t_{\min} + nk
+    \end{equation}
+
+    \begin{equation}
+        \begin{split}
+            & f = \frac{1}{2} \left( f_i^n + f_i^{n+1} \right) \\
+            & \frac{\partial f}{\partial t} = \frac{1}{k}
+            \left(f_i^{n+1} - f_i^n\right) \\
+            & \frac{\partial f}{\partial x} = \frac{1}{4h}
+                \left( f_{i+1}^n - f_{i-1}^n + f_{i+1}^{n+1} - f_{i-1}^{n+1} \right) \\
+            & \frac{\partial^2 f}{\partial x^2} = \frac{1}{2h^2}
+                \left( f_{i+1}^n - 2f_i^{n} + f_{i-1}^n
+                     + f_{i+1}^{n+1} - 2f_i^{n+1} +f_{i-1}^{n+1} \right) \\
+        \end{split}
+    \end{equation}
+
+    \begin{equation}
+        \begin{split}
+            \frac{1}{k}\left(f_i^{n+1} - f_i^n\right) &= \\
+            & a \left[
+                \frac{1}{2h^2} \left( f_{i+1}^n - 2f_i^{n} + f_{i-1}^n
+                     + f_{i+1}^{n+1} - 2f_i^{n+1} +f_{i-1}^{n+1} \right)
+                     \right] \\
+            & + b \left[ 
+            \frac{1}{4h}
+                \left( f_{i+1}^n - f_{i-1}^n + f_{i+1}^{n+1} - f_{i-1}^{n+1} \right)
+                     \right] \\
+            & + c \left[ 
+                \frac{1}{2} \left( f_i^n + f_i^{n+1} \right)
+                     \right] \\
+            & + d
+        \end{split}
+    \end{equation}
+
+    \begin{equation}
+        \begin{split}
+            &A_i f_{i-1}^{n+1} + B_i f_i^{n+1} + C_i f_{i+1}^{n+1} = D_i \\
+            &A_i = -(2ka - khb) \\
+            &B_i = 4h^2 + 4ka - 2h^2kc\\
+            &C_i = -( 2ka + khb ) \\
+            &D_i = (2ka - khb) f_{i-1}^{n} \\
+            &\quad + (4h^2 - 4ka + 2h^2kc) f_i^n \\
+            &\quad + (2ka + khb) f_{i+1}^{n} \\
+            &\quad + 4h^2kd
+        \end{split}
+    \end{equation}
+\subsection{unequal space step}
+
+    \begin{equation}
+        \Delta x_{i,j} = x_{i+j} - x_i
+    \end{equation}
+
+    \begin{equation}
+        \begin{split}
+            & \frac{\partial f}{\partial x} =
+            \frac{f_{i+1}^n -f_{i-1}^n + f_{i+1}^{n+1} - f_{i-1}^{n+1}}
+                {2 \Delta x_{i-1,2}} \\
+            \frac{\partial^2 f}{\partial x^2} &=
+            \frac{f_{i+1}^n + f_{i+1}^{n+1}}
+                {\Delta x_{i,1} \Delta x_{i-1,2}}
+            - \frac{f_i^n + f_i^{n+1}}
+                {\Delta x_{i,1} \Delta x_{i-1,1}}
+            + \frac{f_{i-1}^n + f_{i-1}^{n+1}}
+                {\Delta x_{i-1,1} \Delta x_{i-1,2}}
+        \end{split}
+    \end{equation}
+
+    \begin{equation}
+        \begin{split}
+            \frac{1}{k}\left(f_i^{n+1} - f_i^n\right) &= \\
+            & a \left[
+                    \frac{f_{i+1}^n + f_{i+1}^{n+1}}
+                        {\Delta x_{i,1} \Delta x_{i-1,2}}
+                    - \frac{f_i^n + f_i^{n+1}}
+                        {\Delta x_{i,1} \Delta x_{i-1,1}}
+                    + \frac{f_{i-1}^n + f_{i-1}^{n+1}}
+                        {\Delta x_{i-1,1} \Delta x_{i-1,2}}
+                     \right] \\
+            & + b \left[ 
+                    \frac{f_{i+1}^n -f_{i-1}^n + f_{i+1}^{n+1} - f_{i-1}^{n+1}}
+                        {2 \Delta x_{i-1,2}}
+                     \right] \\
+            & + c \left[ 
+                \frac{1}{2} \left( f_i^n + f_i^{n+1} \right)
+                     \right] \\
+            & + d
+        \end{split}
+    \end{equation}
+
+    \begin{equation}
+        \begin{split}
+            &A_i =
+            -\frac{a}{\Delta x_{i-1,1} \Delta x_{i-1,2}} + \frac{b}{2 \Delta x_{i-1,2}} \\
+            &B_i =
+            \frac{1}{k} + \frac{a}{\Delta x_{i,1} \Delta x_{i-1,1}} - \frac{c}{2}\\
+            &C_i =
+            -\frac{a}{\Delta x_{i,1} \Delta x_{i-1,2}} - \frac{b}{2 \Delta x_{i-1,2}}\\
+            &D_i =
+            \left(\frac{a}{\Delta x_{i-1,1} \Delta x_{i-1,2}} - \frac{b}{2 \Delta x_{i-1,2}}
+                \right) f_{i-1}^{n} \\
+            &\quad + \left( \frac{1}{k} - \frac{a}{\Delta x_{i,1} \Delta x_{i-1,1}}
+                + \frac{c}{2} \right) f_i^n \\
+            &\quad + \left(\frac{a}{\Delta x_{i,1} \Delta x_{i-1,2}} +
+                \frac{b}{2 \Delta x_{i-1,2}}\right) f_{i+1}^{n} \\
+            &\quad + d
+        \end{split}
+    \end{equation}
+
+\section{Test}
+    \begin{equation}
+        \begin{split}
+            &z = \ln(x), \quad x = e^z, \quad \frac{dz}{dx} = \frac{1}{x} = \frac{1}{e^z} \\
+            & \frac{\partial }{\partial x} = \frac{dz}{dx} \frac{\partial } {\partial z}
+            = e^{-z} \frac{\partial }{\partial z}\\
+            & \frac{\partial^2 }{\partial x^2} = e^{-z} \frac{\partial } {\partial z}
+            \left(e^{-z} \frac{\partial }{\partial z}\right) \\
+            & = e^{-2z}\left( \frac{\partial^2}{\partial z^2} - \frac{\partial }{\partial z}
+                       \right)
+        \end{split}
+    \end{equation}
+\subsection{Model 1}
+    \begin{equation}
+        \begin{split}
+            \frac{\partial f} {\partial t} &= \frac{\partial}{\partial x}
+            \left[x^2 \frac{\partial f}{\partial x} + af - xf\right]
+             - f 
+             + \delta(x-x_0)\Theta(t) \\
+            &= \frac{\partial^2 f}{\partial z^2}
+            + ae^{-z} \frac{\partial f}{\partial z}
+            - 2f
+            + \delta(e^{z}-e^{z_0})\Theta(t)
+        \end{split}
+    \end{equation}
+
+\subsection{Model 2}
+    \begin{equation}
+        \begin{split}
+            \frac{\partial f} {\partial t} &= \frac{\partial}{\partial x}
+            \left[x^2 \frac{\partial f}{\partial x} - xf\right]
+             - \frac{f}{x}
+             + \delta(x-x_0)\Theta(t) \\
+            &= \frac{\partial^2 f}{\partial z^2}
+            - \left(1+e^{-z}\right) f
+            + \delta(e^{z}-e^{z_0})\Theta(t)
+        \end{split}
+    \end{equation}
+
+\subsection{Model 3}
+    \begin{equation}
+        \begin{split}
+            \frac{\partial f} {\partial t} &= \frac{\partial}{\partial x}
+            \left[x^3 \frac{\partial f}{\partial x} - x^2f\right]
+             - f
+             + \delta(x-x_0)\Theta(t) \\
+            &= e^{z}\frac{\partial^2 f}{\partial z^2}
+            +  e^{z} \frac{\partial f}{\partial z}
+            - \left(2e^z+1\right) f
+            + \delta(e^{z}-e^{z_0})\Theta(t)
+        \end{split}
+    \end{equation}
+
+\end{document}
+
