@@ -1,0 +1,8 @@
+*.o
+test
+*.dat
+*.aux
+*latexmk
+*.fls
+*.log
+*.xdv
