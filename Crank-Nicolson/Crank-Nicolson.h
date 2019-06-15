@@ -1,6 +1,5 @@
 #include "stdio.h"
 #include "stdlib.h"
-#include "TridMat.h"
 #include "string.h"
 
 typedef double (*MYFUNC)( double, double );
@@ -20,3 +19,4 @@ void CN_init( struct CN_Data p );
 void CN_forward( double t_forward );
 void CN_test();
 void CN_free();
+void TridMat( double *a, double *b, double *c, double *d, double *x, int N, int flag );
